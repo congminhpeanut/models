@@ -70,11 +70,9 @@ if uploaded_file is not None:
     # Hiển thị hình ảnh đã tải lên
     st.image(uploaded_file, caption="Hình ảnh đã tải lên", use_column_width=True)
     st.write("")  # Thêm khoảng trống để giao diện thoáng hơn
-    st.info("Đang dự đoán...")  # Thông báo trạng thái bằng hộp thông tin
 
     # Thực hiện dự đoán (giả định hàm predict_image đã được định nghĩa)
     result = predict_image(uploaded_file)
-    st.info("")
     st.success(f"Kết quả dự đoán: {result}")  # Hiển thị kết quả nổi bật
 
 # Thêm CSS tùy chỉnh để cải thiện thẩm mỹ
