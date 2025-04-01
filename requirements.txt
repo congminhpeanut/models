@@ -1,5 +1,5 @@
-numpy==1.26.4
-tensorflow==2.10.0
-opencv-python-headless==4.11.0.86
-streamlit==1.12.0
-altair==4.2.0
+numpy
+tensorflow
+opencv-python-headless
+streamlit
+altair
