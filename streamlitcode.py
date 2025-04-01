@@ -15,25 +15,11 @@ def predict_image(image_file):
         img_array = np.frombuffer(img_data, np.uint8)
         img = cv2.imdecode(img_array, cv2.IMREAD_COLOR)
 
-        # Giảm kích thước ảnh xuống 800x800, giữ chi tiết vùng trung tâm
-        height, width = img.shape[:2]
-        if width > height:
-            left = (width - height) // 2
-            right = left + height
-            top, bottom = 0, height
-        else:
-            top = (height - width) // 2
-            bottom = top + width
-            left, right = 0, width
-        img_cropped = img[top:bottom, left:right]
-        img_resized = cv2.resize(img_cropped, (800, 800), interpolation=cv2.INTER_LANCZOS4)
+        # Resize trực tiếp thành 800x800, bỏ bước crop
+        img_resized = cv2.resize(img, (800, 800), interpolation=cv2.INTER_LANCZOS4)
 
-        # Tăng độ rõ nét ảnh bằng bộ lọc
-        kernel = np.array([[0, -1, 0], [-1, 5, -1], [0, -1, 0]])  # Bộ lọc làm sắc nét
-        img_sharpened = cv2.filter2D(img_resized, -1, kernel)
-
-        # Chuẩn bị ảnh cho mô hình
-        img_processed = cv2.cvtColor(img_sharpened, cv2.COLOR_BGR2RGB)  # Chuyển sang RGB
+        # Chuẩn bị ảnh cho mô hình (bỏ sharpening để nhất quán với huấn luyện)
+        img_processed = cv2.cvtColor(img_resized, cv2.COLOR_BGR2RGB)  # Chuyển sang RGB
         img_array = np.array(img_processed)  # Chuyển thành mảng NumPy
         img_array = np.expand_dims(img_array, axis=0)  # Thêm chiều batch
 
@@ -51,16 +37,62 @@ def predict_image(image_file):
     except Exception as e:
         return f"Lỗi: {str(e)}"
 
-# Giao diện Streamlit
-st.title("Dự đoán hình ảnh online")
+# Thiết lập tựa đề và mô tả ứng dụng
+st.title("Dự đoán hình ảnh soi tươi huyết trắng bằng MobileNetV2")
+st.markdown("""
+    Ứng dụng này sử dụng mô hình MobileNetV2 để phân tích và dự đoán các loại viêm từ hình ảnh soi tươi huyết trắng.  
+    Vui lòng tải lên hình ảnh để nhận kết quả dự đoán nhanh chóng!
+""")
 
+# Sidebar chứa thông tin bổ sung
+st.sidebar.header("Thông tin ứng dụng")
+st.sidebar.markdown("""
+    - **Tác giả**: Nguyễn Trương Công Minh
+    - **Phiên bản**: 1.0
+    - **Công nghệ**: MobileNetV2  
+    - **Mục đích**: Hỗ trợ dự đoán viêm âm đạo từ hình ảnh soi tươi huyết trắng.
+""")
+
+# Phần tải lên hình ảnh
 uploaded_file = st.file_uploader("Chọn một hình ảnh...", type=["jpg", "png", "jpeg"])
+
 if uploaded_file is not None:
     # Hiển thị hình ảnh đã tải lên
-    st.image(uploaded_file, caption='Hình ảnh đã tải lên.', use_column_width=True)
-    st.write("")
-    st.write("Đang dự đoán...")
+    st.image(uploaded_file, caption="Hình ảnh đã tải lên", use_column_width=True)
+    st.write("")  # Thêm khoảng trống để giao diện thoáng hơn
+    st.info("Đang dự đoán...")  # Thông báo trạng thái bằng hộp thông tin
 
-    # Thực hiện dự đoán
+    # Thực hiện dự đoán (giả định hàm predict_image đã được định nghĩa)
     result = predict_image(uploaded_file)
-    st.write(f"Kết quả dự đoán: {result}")
+    st.success(f"Kết quả dự đoán: {result}")  # Hiển thị kết quả nổi bật
+
+# Thêm CSS tùy chỉnh để cải thiện thẩm mỹ
+st.markdown("""
+    <style>
+    .stApp {
+        background-color: #f0f2f6;  /* Màu nền nhẹ nhàng */
+    }
+    h1 {
+        color: #1f77b4;  /* Màu xanh chuyên nghiệp cho tiêu đề */
+        font-family: 'Arial', sans-serif;
+    }
+    .stMarkdown p {
+        color: #333333;  /* Màu chữ tối cho mô tả */
+        font-size: 16px;
+    }
+    .stImage {
+        border: 2px solid #ddd;  /* Viền nhẹ cho hình ảnh */
+        border-radius: 8px;  /* Bo góc hình ảnh */
+        padding: 5px;
+        background-color: #ffffff;
+    }
+    .stSuccess {
+        font-size: 18px;  /* Tăng kích thước chữ kết quả */
+        font-weight: bold;  /* In đậm kết quả */
+    }
+    .stSidebar .sidebar-content {
+        background-color: #ffffff;  /* Sidebar màu trắng */
+        border-right: 1px solid #ddd;
+    }
+    </style>
+""", unsafe_allow_html=True)
