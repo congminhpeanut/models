@@ -39,19 +39,19 @@ def predict_image(image_file):
         if predicted_class == 0:
             predicted_class = 'Viêm do tạp trùng hoặc tác nhân khác'
         elif predicted_class == 1:
-            predicted_class = 'Viêm do clue cell'
+            predicted_class = 'Quang trường có sự hiện diện của clue cell'
         elif predicted_class == 2:
-            predicted_class = 'Viêm do vi nấm'
+            predicted_class = 'Quang trường có sự hiện diện của vi nấm'
 
         return predicted_class
     except Exception as e:
         return f"Lỗi: {str(e)}"
 
 # Thiết lập tựa đề và mô tả ứng dụng
-st.title("Dự đoán hình ảnh soi tươi huyết trắng bằng MobileNetV2")
+st.title("Phân loại nhanh hình ảnh soi tươi huyết trắng bằng MobileNetV2")
 st.markdown("""
-    Ứng dụng này sử dụng mô hình MobileNetV2 để phân tích và dự đoán các loại viêm từ hình ảnh soi tươi huyết trắng.  
-    Vui lòng tải lên hình ảnh để nhận kết quả dự đoán nhanh chóng!
+    Ứng dụng này sử dụng mô hình MobileNetV2 để phân tích và dự đoán nhanh sự xuất hiện của một số tác nhân gây viêm từ hình ảnh soi tươi huyết trắng.  
+    Vui lòng tải lên hình ảnh chụp ở X40 để nhận kết quả dự đoán nhanh chóng!
 """)
 
 # Sidebar chứa thông tin bổ sung
