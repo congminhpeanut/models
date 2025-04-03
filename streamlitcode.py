@@ -29,7 +29,7 @@ def predict_image(image_file):
 
         # Tính toán vùng cần zoom (giảm kích thước crop thêm 20%)
         size = img_cropped.shape[0]
-        zoom_factor = 1.2  # Tương ứng zoom 0.2
+        zoom_factor = 2.0  # Tương ứng zoom 0.2
         new_size = int(size / zoom_factor)
         
         # Đảm bảo new_size không vượt quá kích thước hiện tại
