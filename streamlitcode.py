@@ -15,8 +15,6 @@ def predict_image(image_file):
         img_array = np.frombuffer(img_data, np.uint8)
         img = cv2.imdecode(img_array, cv2.IMREAD_COLOR)
 
-        img = cv2.resize(img, (1000, 1000), interpolation=cv2.INTER_LANCZOS4)
-
         # Chuyển ảnh sang grayscale để dễ xử lý vùng tối
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
