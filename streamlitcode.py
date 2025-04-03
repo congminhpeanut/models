@@ -57,17 +57,19 @@ def predict_image(image_file):
 
         # Dự đoán bằng mô hình
         prediction = model.predict(img_array)
-        predicted_class = np.argmax(prediction, axis=1)[0]
-        
-        # Ánh xạ kết quả dự đoán
-        if predicted_class == 0:
-            predicted_class = 'Viêm do tạp trùng hoặc tác nhân khác'
-        elif predicted_class == 1:
-            predicted_class = 'Quang trường có sự hiện diện của clue cell'
-        elif predicted_class == 2:
-            predicted_class = 'Quang trường có sự hiện diện của vi nấm'
+        predicted_class_idx = np.argmax(prediction, axis=1)[0]
+        confidence = np.max(prediction) * 100
+        confidence_rounded = round(confidence)  # Làm tròn phần trăm
 
-        return predicted_class
+        # Ánh xạ kết quả dự đoán
+        if predicted_class_idx == 0:
+            class_name = 'Viêm do tạp trùng hoặc tác nhân khác'
+        elif predicted_class_idx == 1:
+            class_name = 'Quang trường có sự hiện diện của clue cell'
+        elif predicted_class_idx == 2:
+            class_name = 'Quang trường có sự hiện diện của vi nấm'
+
+        return f"{class_name} (khả năng {confidence_rounded}%)"
     except Exception as e:
         return f"Lỗi: {str(e)}"
 
