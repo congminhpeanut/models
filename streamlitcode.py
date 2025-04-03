@@ -57,19 +57,32 @@ def predict_image(image_file):
 
         # Dự đoán bằng mô hình
         prediction = model.predict(img_array)
-        predicted_class_idx = np.argmax(prediction, axis=1)[0]
-        confidence = np.max(prediction) * 100
-        confidence_rounded = round(confidence)  # Làm tròn phần trăm
+        probabilities = prediction[0]
+        sorted_indices = np.argsort(probabilities)[::-1]  # Sắp xếp từ cao đến thấp
 
-        # Ánh xạ kết quả dự đoán
-        if predicted_class_idx == 0:
-            class_name = 'Viêm do tạp trùng hoặc tác nhân khác'
-        elif predicted_class_idx == 1:
-            class_name = 'Quang trường có sự hiện diện của clue cell'
-        elif predicted_class_idx == 2:
-            class_name = 'Quang trường có sự hiện diện của vi nấm'
+        # Lấy thông tin 3 lớp hàng đầu
+        top_idx, second_idx, third_idx = sorted_indices[:3]
+        confidence_top = round(probabilities[top_idx] * 100)
+        confidence_second = round(probabilities[second_idx] * 100)
 
-        return f"{class_name} (khả năng {confidence_rounded}%)"
+        # Ánh xạ tên lớp
+        class_mapping = {
+            0: 'Viêm do tạp trùng hoặc tác nhân khác',
+            1: 'Quang trường có sự hiện diện của clue cell',
+            2: 'Quang trường có sự hiện diện của vi nấm'
+        }
+
+        # Định dạng tên lớp thứ 2
+        secondary_class = class_mapping[second_idx].replace("Quang trường ", "", 1)
+
+        # Tạo kết quả chính
+        result = f"{class_mapping[top_idx]} ({confidence_top}%)"
+
+        # Thêm dự đoán thứ 2 nếu có điều kiện
+        if probabilities[second_idx] > probabilities[third_idx]:
+            result += f", {secondary_class} ({confidence_second}%)"
+
+        return result
     except Exception as e:
         return f"Lỗi: {str(e)}"
 
