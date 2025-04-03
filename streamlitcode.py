@@ -4,7 +4,6 @@ import cv2
 import numpy as np
 
 # Load mô hình một lần khi ứng dụng khởi động
-@st.cache
 def load_model():
 	model_path = 'best_model.h5'
 	return tf.keras.models.load_model(model_path)
