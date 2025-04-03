@@ -20,7 +20,7 @@ def predict_image(image_file):
 
         # Áp dụng ngưỡng (threshold) để tìm vùng sáng (optical field)
         # Giả sử vùng tối có giá trị pixel nhỏ (gần 0), vùng sáng có giá trị lớn hơn
-        _, thresh = cv2.threshold(gray, 30, 255, cv2.THRESH_BINARY)
+        _, thresh = cv2.threshold(gray, 5, 255, cv2.THRESH_BINARY)
 
         # Tìm contours để xác định vùng sáng lớn nhất (optical field)
         contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
