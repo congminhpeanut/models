@@ -15,7 +15,7 @@ def predict_image(image_file):
         img_array = np.frombuffer(img_data, np.uint8)
         img = cv2.imdecode(img_array, cv2.IMREAD_COLOR)
 
-        # Giảm kích thước ảnh xuống 800x800, giữ chi tiết vùng trung tâm
+        # Crop hình vuông từ ảnh gốc, ưu tiên vùng trung tâm
         height, width = img.shape[:2]
         if width > height:
             left = (width - height) // 2
@@ -26,16 +26,32 @@ def predict_image(image_file):
             bottom = top + width
             left, right = 0, width
         img_cropped = img[top:bottom, left:right]
-        img_resized = cv2.resize(img_cropped, (800, 800), interpolation=cv2.INTER_LANCZOS4)
 
-        # Chuẩn bị ảnh cho mô hình (bỏ sharpening để nhất quán với huấn luyện)
-        img_processed = cv2.cvtColor(img_resized, cv2.COLOR_BGR2RGB)  # Chuyển sang RGB
-        img_array = np.array(img_processed)  # Chuyển thành mảng NumPy
-        img_array = np.expand_dims(img_array, axis=0)  # Thêm chiều batch
+        # Tính toán vùng cần zoom (giảm kích thước crop thêm 20%)
+        size = img_cropped.shape[0]
+        zoom_factor = 1.2  # Tương ứng zoom 0.2
+        new_size = int(size / zoom_factor)
+        
+        # Đảm bảo new_size không vượt quá kích thước hiện tại
+        y_start = (size - new_size) // 2
+        y_end = y_start + new_size
+        x_start = (size - new_size) // 2
+        x_end = x_start + new_size
+        img_zoomed = img_cropped[y_start:y_end, x_start:x_end]
+
+        # Resize ảnh đã zoom lên 800x800
+        img_resized = cv2.resize(img_zoomed, (800, 800), interpolation=cv2.INTER_LANCZOS4)
+
+        # Chuẩn bị ảnh cho mô hình (chuyển sang RGB và thêm chiều batch)
+        img_processed = cv2.cvtColor(img_resized, cv2.COLOR_BGR2RGB)
+        img_array = np.array(img_processed)
+        img_array = np.expand_dims(img_array, axis=0)
 
         # Dự đoán bằng mô hình
         prediction = model.predict(img_array)
         predicted_class = np.argmax(prediction, axis=1)[0]
+        
+        # Ánh xạ kết quả dự đoán
         if predicted_class == 0:
             predicted_class = 'Viêm do tạp trùng hoặc tác nhân khác'
         elif predicted_class == 1:
