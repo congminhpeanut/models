@@ -15,6 +15,8 @@ def predict_image(image_file):
         img_array = np.frombuffer(img_data, np.uint8)
         img = cv2.imdecode(img_array, cv2.IMREAD_COLOR)
 
+        img = cv2.resize(img, (1000, 1000), interpolation=cv2.INTER_LANCZOS4)
+
         # Chuyển ảnh sang grayscale để dễ xử lý vùng tối
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
@@ -49,7 +51,7 @@ def predict_image(image_file):
         img_square = img_cropped[top:bottom, left:right]
 
         # Resize ảnh về kích thước 800x800
-        img_resized = cv2.resize(img_square, (600, 600), interpolation=cv2.INTER_LANCZOS4)
+        img_resized = cv2.resize(img_square, (800, 800), interpolation=cv2.INTER_LANCZOS4)
 
         # Chuẩn bị ảnh cho mô hình
         img_processed = cv2.cvtColor(img_resized, cv2.COLOR_BGR2RGB)  # Chuyển sang RGB
