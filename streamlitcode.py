@@ -15,30 +15,28 @@ def predict_image(image_file):
         img_array = np.frombuffer(img_data, np.uint8)
         img = cv2.imdecode(img_array, cv2.IMREAD_COLOR)
 
-        # Chuyển ảnh sang grayscale
+        # Chuyển ảnh sang grayscale để dễ xử lý vùng tối
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
-        # Áp dụng Gaussian Blur để giảm nhiễu
-        blurred = cv2.GaussianBlur(gray, (5, 5), 0)
+        # Áp dụng ngưỡng (threshold) để tìm vùng sáng (optical field)
+        # Giả sử vùng tối có giá trị pixel nhỏ (gần 0), vùng sáng có giá trị lớn hơn
+        _, thresh = cv2.threshold(gray, 30, 255, cv2.THRESH_BINARY)
 
-        # Áp dụng thresholding để tách vùng sáng
-        _, thresh = cv2.threshold(blurred, 30, 255, cv2.THRESH_BINARY)
-
-        # Tìm contours
+        # Tìm contours để xác định vùng sáng lớn nhất (optical field)
         contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        if not contours:
+            raise Exception("Không tìm thấy vùng sáng trong ảnh")
 
-        if contours:
-            # Tìm contour lớn nhất (vùng sáng lớn nhất)
-            largest_contour = max(contours, key=cv2.contourArea)
-            x, y, w, h = cv2.boundingRect(largest_contour)
+        # Lấy contour lớn nhất (vùng sáng chính)
+        largest_contour = max(contours, key=cv2.contourArea)
 
-            # Cắt ảnh theo bounding box của contour lớn nhất
-            img_cropped = img[y:y+h, x:x+w]
-        else:
-            # Nếu không tìm thấy contour, sử dụng toàn bộ ảnh
-            img_cropped = img
+        # Tính hình chữ nhật bao quanh contour lớn nhất
+        x, y, w, h = cv2.boundingRect(largest_contour)
 
-        # Cắt thành hình vuông từ trung tâm
+        # Cắt vùng sáng từ ảnh gốc
+        img_cropped = img[y:y+h, x:x+w]
+
+        # Chuyển vùng đã cắt thành hình vuông, ưu tiên trung tâm
         height, width = img_cropped.shape[:2]
         if width > height:
             left = (width - height) // 2
@@ -50,7 +48,7 @@ def predict_image(image_file):
             left, right = 0, width
         img_square = img_cropped[top:bottom, left:right]
 
-        # Resize về 800x800
+        # Resize ảnh về kích thước 800x800
         img_resized = cv2.resize(img_square, (800, 800), interpolation=cv2.INTER_LANCZOS4)
 
         # Chuẩn bị ảnh cho mô hình
