@@ -15,55 +15,8 @@ def predict_image(image_file):
         img_array = np.frombuffer(img_data, np.uint8)
         img = cv2.imdecode(img_array, cv2.IMREAD_COLOR)
 
-        ##############################################################
-        # Bước mới: Cắt ảnh 1000x1000 ưu tiên trung tâm (có padding nếu cần)
-        ##############################################################
-        h, w = img.shape[:2]
-        crop_size = 1000
-        
-        # Xử lý trường hợp ảnh nhỏ hơn kích thước crop
-        if h < crop_size or w < crop_size:
-            # Tính toán padding cần thêm
-            pad_h = max(crop_size - h, 0)
-            pad_w = max(crop_size - w, 0)
-            
-            # Thêm padding đều các phía
-            img = cv2.copyMakeBorder(img, 
-                                  pad_h//2, pad_h - pad_h//2,
-                                  pad_w//2, pad_w - pad_w//2,
-                                  cv2.BORDER_CONSTANT, 
-                                  value=[0,0,0])
-        
-        # Cắt ảnh từ trung tâm
-        h, w = img.shape[:2]
-        start_x, start_y = (w - crop_size)//2, (h - crop_size)//2
-        img = img[start_y:start_y+crop_size, start_x:start_x+crop_size]
-
-        ##############################################################
-        # Các bước xử lý tiếp theo giữ nguyên như code gốc
-        ##############################################################
-        # Chuyển ảnh sang grayscale
-        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-
-        # Áp dụng ngưỡng để tìm vùng sáng
-        _, thresh = cv2.threshold(gray, 10, 255, cv2.THRESH_BINARY)
-
-        # Tìm contours
-        contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-        if not contours:
-            raise Exception("Không tìm thấy vùng sáng trong ảnh")
-
-        # Lấy contour lớn nhất
-        largest_contour = max(contours, key=cv2.contourArea)
-
-        # Tính hình chữ nhật bao quanh
-        x, y, w, h = cv2.boundingRect(largest_contour)
-
-        # Cắt vùng sáng từ ảnh
-        img_cropped = img[y:y+h, x:x+w]
-
-        # Chuyển thành hình vuông (ưu tiên trung tâm)
-        height, width = img_cropped.shape[:2]
+        # Giảm kích thước ảnh xuống 800x800, giữ chi tiết vùng trung tâm
+        height, width = img.shape[:2]
         if width > height:
             left = (width - height) // 2
             right = left + height
@@ -72,17 +25,15 @@ def predict_image(image_file):
             top = (height - width) // 2
             bottom = top + width
             left, right = 0, width
-        img_square = img_cropped[top:bottom, left:right]
+        img_cropped = img[top:bottom, left:right]
+        img_resized = cv2.resize(img_cropped, (800, 800), interpolation=cv2.INTER_LANCZOS4)
 
-        # Resize về 800x800
-        img_resized = cv2.resize(img_square, (800, 800), interpolation=cv2.INTER_LANCZOS4)
+        # Chuẩn bị ảnh cho mô hình (bỏ sharpening để nhất quán với huấn luyện)
+        img_processed = cv2.cvtColor(img_resized, cv2.COLOR_BGR2RGB)  # Chuyển sang RGB
+        img_array = np.array(img_processed)  # Chuyển thành mảng NumPy
+        img_array = np.expand_dims(img_array, axis=0)  # Thêm chiều batch
 
-        # Chuẩn bị ảnh cho model
-        img_processed = cv2.cvtColor(img_resized, cv2.COLOR_BGR2RGB)
-        img_array = np.array(img_processed)
-        img_array = np.expand_dims(img_array, axis=0)
-
-        # Dự đoán
+        # Dự đoán bằng mô hình
         prediction = model.predict(img_array)
         predicted_class = np.argmax(prediction, axis=1)[0]
         if predicted_class == 0:
