@@ -15,32 +15,40 @@ def predict_image(image_file):
         img_array = np.frombuffer(img_data, np.uint8)
         img = cv2.imdecode(img_array, cv2.IMREAD_COLOR)
 
-        # Crop hình vuông từ ảnh gốc, ưu tiên vùng trung tâm
+        # Bước 1: Crop hình vuông 1500x1500 ưu tiên vùng trung tâm
         height, width = img.shape[:2]
-        if width > height:
-            left = (width - height) // 2
-            right = left + height
-            top, bottom = 0, height
-        else:
-            top = (height - width) // 2
-            bottom = top + width
-            left, right = 0, width
-        img_cropped = img[top:bottom, left:right]
-
-        # Tính toán vùng cần zoom (giảm kích thước crop thêm 20%)
-        size = img_cropped.shape[0]
-        zoom_factor = 1
-        new_size = int(size / zoom_factor)
+        target_size_1500 = 1500
+        crop_size_1500 = min(height, width, target_size_1500)
         
-        # Đảm bảo new_size không vượt quá kích thước hiện tại
-        y_start = (size - new_size) // 2
-        y_end = y_start + new_size
-        x_start = (size - new_size) // 2
-        x_end = x_start + new_size
-        img_zoomed = img_cropped[y_start:y_end, x_start:x_end]
+        if width > height:
+            left_1500 = (width - crop_size_1500) // 2
+            right_1500 = left_1500 + crop_size_1500
+            top_1500, bottom_1500 = 0, crop_size_1500
+        else:
+            top_1500 = (height - crop_size_1500) // 2
+            bottom_1500 = top_1500 + crop_size_1500
+            left_1500, right_1500 = 0, crop_size_1500
+        
+        img_cropped_1500 = img[top_1500:bottom_1500, left_1500:right_1500]
 
-        # Resize ảnh đã zoom lên 800x800
-        img_resized = cv2.resize(img_zoomed, (800, 800), interpolation=cv2.INTER_LANCZOS4)
+        # Bước 2: Crop hình vuông 800x800 từ ảnh đã crop 1500x1500
+        height_1500, width_1500 = img_cropped_1500.shape[:2]
+        target_size_800 = 800
+        crop_size_800 = min(height_1500, width_1500, target_size_800)
+        
+        if width_1500 > height_1500:
+            left_800 = (width_1500 - crop_size_800) // 2
+            right_800 = left_800 + crop_size_800
+            top_800, bottom_800 = 0, crop_size_800
+        else:
+            top_800 = (height_1500 - crop_size_800) // 2
+            bottom_800 = top_800 + crop_size_800
+            left_800, right_800 = 0, crop_size_800
+        
+        img_cropped_800 = img_cropped_1500[top_800:bottom_800, left_800:right_800]
+
+        # Resize ảnh về kích thước 800x800
+        img_resized = cv2.resize(img_cropped_800, (800, 800), interpolation=cv2.INTER_LANCZOS4)
 
         # Chuẩn bị ảnh cho mô hình (chuyển sang RGB và thêm chiều batch)
         img_processed = cv2.cvtColor(img_resized, cv2.COLOR_BGR2RGB)
