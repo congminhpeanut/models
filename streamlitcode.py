@@ -15,8 +15,31 @@ def predict_image(image_file):
         img_array = np.frombuffer(img_data, np.uint8)
         img = cv2.imdecode(img_array, cv2.IMREAD_COLOR)
 
-        # Giảm kích thước ảnh xuống 800x800, giữ chi tiết vùng trung tâm
-        height, width = img.shape[:2]
+        # Chuyển ảnh sang grayscale
+        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
+        # Áp dụng Gaussian Blur để giảm nhiễu
+        blurred = cv2.GaussianBlur(gray, (5, 5), 0)
+
+        # Áp dụng thresholding để tách vùng sáng
+        _, thresh = cv2.threshold(blurred, 30, 255, cv2.THRESH_BINARY)
+
+        # Tìm contours
+        contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+        if contours:
+            # Tìm contour lớn nhất (vùng sáng lớn nhất)
+            largest_contour = max(contours, key=cv2.contourArea)
+            x, y, w, h = cv2.boundingRect(largest_contour)
+
+            # Cắt ảnh theo bounding box của contour lớn nhất
+            img_cropped = img[y:y+h, x:x+w]
+        else:
+            # Nếu không tìm thấy contour, sử dụng toàn bộ ảnh
+            img_cropped = img
+
+        # Cắt thành hình vuông từ trung tâm
+        height, width = img_cropped.shape[:2]
         if width > height:
             left = (width - height) // 2
             right = left + height
@@ -25,10 +48,12 @@ def predict_image(image_file):
             top = (height - width) // 2
             bottom = top + width
             left, right = 0, width
-        img_cropped = img[top:bottom, left:right]
-        img_resized = cv2.resize(img_cropped, (800, 800), interpolation=cv2.INTER_LANCZOS4)
+        img_square = img_cropped[top:bottom, left:right]
 
-        # Chuẩn bị ảnh cho mô hình (bỏ sharpening để nhất quán với huấn luyện)
+        # Resize về 800x800
+        img_resized = cv2.resize(img_square, (800, 800), interpolation=cv2.INTER_LANCZOS4)
+
+        # Chuẩn bị ảnh cho mô hình
         img_processed = cv2.cvtColor(img_resized, cv2.COLOR_BGR2RGB)  # Chuyển sang RGB
         img_array = np.array(img_processed)  # Chuyển thành mảng NumPy
         img_array = np.expand_dims(img_array, axis=0)  # Thêm chiều batch
