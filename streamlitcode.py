@@ -49,7 +49,7 @@ def predict_image(image_file):
         img_square = img_cropped[top:bottom, left:right]
 
         # Resize ảnh về kích thước 800x800
-        img_resized = cv2.resize(img_square, (1500, 1500), interpolation=cv2.INTER_LANCZOS4)
+        img_resized = cv2.resize(img_square, (600, 600), interpolation=cv2.INTER_LANCZOS4)
 
         # Chuẩn bị ảnh cho mô hình
         img_processed = cv2.cvtColor(img_resized, cv2.COLOR_BGR2RGB)  # Chuyển sang RGB
