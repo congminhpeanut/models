@@ -49,10 +49,10 @@ def predict_image(image_file):
         img_square = img_cropped[top:bottom, left:right]
 
         # Resize ảnh về kích thước 800x800
-        #img_resized = cv2.resize(img_square, (800, 800), interpolation=cv2.INTER_LANCZOS4)
+        img_resized = cv2.resize(img_square, (1500, 1500), interpolation=cv2.INTER_LANCZOS4)
 
         # Chuẩn bị ảnh cho mô hình
-        img_processed = cv2.cvtColor(img_square, cv2.COLOR_BGR2RGB)  # Chuyển sang RGB
+        img_processed = cv2.cvtColor(img_resized, cv2.COLOR_BGR2RGB)  # Chuyển sang RGB
         img_array = np.array(img_processed)  # Chuyển thành mảng NumPy
         img_array = np.expand_dims(img_array, axis=0)  # Thêm chiều batch
 
