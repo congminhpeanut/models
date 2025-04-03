@@ -4,8 +4,12 @@ import cv2
 import numpy as np
 
 # Load mô hình một lần khi ứng dụng khởi động
-model_path = 'best_model.h5'  # Thay đổi thành đường dẫn thực tế đến file best_model.h5
-model = tf.keras.models.load_model(model_path)
+@st.cache
+def load_model():
+      model_path = 'best_model.h5'
+	  return tf.keras.models.load_model(model_path)
+
+model = load_model()
 
 # Hàm xử lý và dự đoán ảnh
 def predict_image(image_file):
