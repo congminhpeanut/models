@@ -98,7 +98,7 @@ def styled_header(text):
 def main():
     # Page config
     st.set_page_config(
-        page_title="AI Phân Tích Huyết Trắng",
+        page_title="AI Phân Loại Hình Ảnh Soi Tươi Huyết Trắng",
         page_icon="🔬",
         layout="centered",
         initial_sidebar_state="expanded"
@@ -106,7 +106,7 @@ def main():
 
     # Main content
     with st.container():
-        styled_header("Phân loại nhanh hình ảnh soi tươi huyết trắng")
+        styled_header("Phân loại hình ảnh soi tươi huyết trắng")
         st.markdown("""
             <div style="font-size: 16px; color: #444; line-height: 1.6;">
                 Ứng dụng sử dụng mô hình MobileNetV2 được huấn luyện chuyên sâu để phân tích 
