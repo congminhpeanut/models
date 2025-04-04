@@ -3,7 +3,6 @@ import tensorflow as tf
 import cv2
 import numpy as np
 import gc
-from PIL import Image
 
 # Configure TensorFlow to use memory growth
 gpus = tf.config.experimental.list_physical_devices('GPU')
@@ -25,8 +24,10 @@ model = load_model()
 # Optimized image processing and prediction
 def predict_image(image_file):
     try:
-        # Read image with PIL and convert to numpy array
-        img = np.array(Image.open(image_file).convert('RGB'))
+        # Đọc file ảnh từ bộ nhớ
+        img_data = image_file.read()
+        img_array = np.frombuffer(img_data, np.uint8)
+        img = cv2.imdecode(img_array, cv2.IMREAD_COLOR)
         
         # Optimized cropping pipeline
         def center_crop(img, target_size):
