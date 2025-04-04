@@ -30,24 +30,43 @@ def predict_image(image_file):
         img_array = np.frombuffer(img_data, np.uint8)
         img = cv2.imdecode(img_array, cv2.IMREAD_COLOR)
         
-        # Optimized cropping pipeline
-        def center_crop(img, target_size):
-            h, w = img.shape[:2]
-            if w > h:
-                pad = (w - h) // 2
-                img = img[:, pad:pad+h] if w > h else img
-            else:
-                pad = (h - w) // 2
-                img = img[pad:pad+w, :] if h > w else img
-            return cv2.resize(img, (target_size, target_size), 
-                            interpolation=cv2.INTER_LANCZOS4)
+        # Bước 1: Crop hình vuông 1500x1500 ưu tiên vùng trung tâm
+        height, width = img.shape[:2]
+        target_size_1500 = 1500
+        crop_size_1500 = min(height, width, target_size_1500)
+        
+        if width > height:
+            left_1500 = (width - crop_size_1500) // 2
+            right_1500 = left_1500 + crop_size_1500
+            top_1500, bottom_1500 = 0, crop_size_1500
+        else:
+            top_1500 = (height - crop_size_1500) // 2
+            bottom_1500 = top_1500 + crop_size_1500
+            left_1500, right_1500 = 0, crop_size_1500
+        
+        img_cropped_1500 = img[top_1500:bottom_1500, left_1500:right_1500]
 
-        # Two-stage cropping with optimized sizes
-        img_cropped = center_crop(img, 1500)
-        img_cropped = center_crop(img_cropped, 800)
+        # Bước 2: Crop hình vuông 800x800 từ ảnh đã crop 1500x1500
+        height_1500, width_1500 = img_cropped_1500.shape[:2]
+        target_size_800 = 800
+        crop_size_800 = min(height_1500, width_1500, target_size_800)
+        
+        if width_1500 > height_1500:
+            left_800 = (width_1500 - crop_size_800) // 2
+            right_800 = left_800 + crop_size_800
+            top_800, bottom_800 = 0, crop_size_800
+        else:
+            top_800 = (height_1500 - crop_size_800) // 2
+            bottom_800 = top_800 + crop_size_800
+            left_800, right_800 = 0, crop_size_800
+        
+        img_cropped_800 = img_cropped_1500[top_800:bottom_800, left_800:right_800]
+
+        # Resize ảnh về kích thước 800x800
+        img_resized = cv2.resize(img_cropped_800, (800, 800), interpolation=cv2.INTER_LANCZOS4)
         
         # Convert and preprocess image
-        img_processed = cv2.cvtColor(img_cropped, cv2.COLOR_BGR2RGB)
+        img_processed = cv2.cvtColor(img_resized, cv2.COLOR_BGR2RGB)
         
         img_array = tf.expand_dims(img_processed, axis=0)
         
