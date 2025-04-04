@@ -62,10 +62,10 @@ def predict_image(image_file):
         img_cropped_800 = img_cropped_1500[top_800:bottom_800, left_800:right_800]
 
         # Resize ảnh về kích thước 800x800
-        img_resized = cv2.resize(img_cropped_800, (800, 800), interpolation=cv2.INTER_LANCZOS4)
+        #img_resized = cv2.resize(img_cropped_800, (800, 800), interpolation=cv2.INTER_LANCZOS4)
         
         # Convert and preprocess image
-        img_processed = cv2.cvtColor(img_resized, cv2.COLOR_BGR2RGB)
+        img_processed = cv2.cvtColor(img_cropped_800, cv2.COLOR_BGR2RGB)
         
         img_array = tf.expand_dims(img_processed, axis=0)
         
