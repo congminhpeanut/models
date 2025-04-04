@@ -83,7 +83,10 @@ def predict_image(image_file):
         fungus_prob = probabilities[2]
 
         if fungus_prob >= 0.6:
-            recommendation = "Vi nấm (+)"
+            if bacterial_prob >= 0.2:
+                recommendation = "Viêm do nhiễm khuẩn, vi nấm (+)"
+            else:
+                recommendation = "Vi nấm (+)"
         elif bacterial_prob >= 0.6:
             recommendation = "Viêm do nhiễm khuẩn"
         elif clue_prob >= 0.6:
@@ -92,7 +95,7 @@ def predict_image(image_file):
             recommendation = "Viêm do nhiễm khuẩn hoặc tác nhân khác"
         
         # Clean up resources
-        del img, img_cropped_1500, img_cropped_800, img_processed, img_array
+        del img, img_cropped_1500, img_cropped_800, img_processed, img_array, fungus_prob, bacterial_prob, clue_prob
         gc.collect()
 
         # Post-processing
