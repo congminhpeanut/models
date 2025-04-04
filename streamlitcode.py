@@ -49,10 +49,10 @@ def predict_image(image_file):
         # Convert and preprocess image
         img_processed = cv2.cvtColor(img_cropped, cv2.COLOR_BGR2RGB)
         
-        # img_array = tf.expand_dims(img_processed, axis=0)
+        img_array = tf.expand_dims(img_processed, axis=0)
         
-        img_array = np.array(img_processed)
-        img_array = np.expand_dims(img_array, axis=0)
+        #img_array = np.array(img_processed)
+        #img_array = np.expand_dims(img_array, axis=0)
 
         # Memory-efficient prediction
         with tf.device('/cpu:0'):  # Force CPU prediction if memory issues
@@ -151,10 +151,11 @@ def main():
     if uploaded_file:
         # Preview section
         with st.expander("Xem trước hình ảnh", expanded=True):
-            pil_image = Image.open(uploaded_file)
-            st.image(pil_image.resize((600, 600)), 
-                    caption="Hình ảnh đầu vào",
-                    use_column_width=True)
+            #pil_image = Image.open(uploaded_file)
+            #st.image(pil_image.resize((600, 600)), 
+            #        caption="Hình ảnh đầu vào",
+            #        use_column_width=True)
+            st.image(uploaded_file, caption="Hình ảnh đã tải lên", use_column_width=True)
 
         # Prediction
         with st.spinner("Đang phân tích hình ảnh..."):
