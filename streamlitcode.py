@@ -3,7 +3,6 @@ import tensorflow as tf
 import cv2
 import numpy as np
 import gc
-from PIL import Image
 
 # Configure TensorFlow to use memory growth
 gpus = tf.config.experimental.list_physical_devices('GPU')
