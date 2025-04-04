@@ -76,6 +76,20 @@ def predict_image(image_file):
         with tf.device('/cpu:0'):  # Force CPU prediction if memory issues
             prediction = model.predict(img_array, verbose=0)
             probabilities = prediction[0]
+
+        # Tính toán khuyến nghị
+        bacterial_prob = probabilities[0]
+        clue_prob = probabilities[1]
+        fungus_prob = probabilities[2]
+
+        if fungus_prob >= 0.6:
+            recommendation = "Vi nấm (+)"
+        elif bacterial_prob >= 0.6:
+            recommendation = "Viêm do nhiễm khuẩn"
+        elif clue_prob >= 0.6:
+            recommendation = "Clue cell (+)"
+        else:
+            recommendation = "Viêm do nhiễm khuẩn hoặc tác nhân khác"
         
         # Clean up resources
         del img, img_cropped_1500, img_cropped_800, img_processed, img_array
@@ -98,7 +112,7 @@ def predict_image(image_file):
                 class_name = class_mapping[idx].replace("Quang trường ", "", 1) if i > 0 else class_mapping[idx]
                 top_results.append(f"{class_name} ({confidence}%)")
 
-        return ", ".join(top_results[:2])  # Return top 2 results
+        return recommendation, ", ".join(top_results[:2])  # Return top 2 results
 
     except Exception as e:
         st.error(f"Lỗi xử lý ảnh: {str(e)}")
@@ -178,11 +192,11 @@ def main():
 
         # Prediction
         with st.spinner("Đang phân tích hình ảnh..."):
-            result = predict_image(uploaded_file)
+            recommendation, result = predict_image(uploaded_file)
             
         st.success(f"""
-            **Kết quả phân tích:**  
-            {result}
+            **Khuyến nghị:** {recommendation}
+            \n**Chi tiết:** {result}
         """)
 
         # Add spacing
