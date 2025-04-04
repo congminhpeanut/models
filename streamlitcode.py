@@ -146,7 +146,7 @@ def main():
 
     # Sidebar
     with st.sidebar:
-        styled_header("Thông tin hệ thống")
+        styled_header("Thông tin phần mềm")
         st.markdown("""
             <div style="padding: 10px; background: #f8f9fa; border-radius: 8px;">
                 <p style="font-size: 14px; color: #666;">
