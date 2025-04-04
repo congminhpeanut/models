@@ -79,7 +79,7 @@ def predict_image(image_file):
             probabilities = prediction[0]
         
         # Clean up resources
-        del img, img_cropped, img_processed, img_array
+        del img, img_cropped_1500, img_cropped_800, img_processed, img_array
         gc.collect()
 
         # Post-processing
