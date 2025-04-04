@@ -47,7 +47,7 @@ def predict_image(image_file):
         img_cropped = center_crop(img_cropped, 800)
         
         # Convert and preprocess image
-        img_processed = tf.image.convert_image_dtype(img_cropped, tf.float32)
+        img_processed = cv2.cvtColor(img_cropped, cv2.COLOR_BGR2RGB)
         img_array = tf.expand_dims(img_processed, axis=0)
 
         # Memory-efficient prediction
