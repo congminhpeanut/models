@@ -48,7 +48,11 @@ def predict_image(image_file):
         
         # Convert and preprocess image
         img_processed = cv2.cvtColor(img_cropped, cv2.COLOR_BGR2RGB)
-        img_array = tf.expand_dims(img_processed, axis=0)
+        
+        # img_array = tf.expand_dims(img_processed, axis=0)
+        
+        img_array = np.array(img_processed)
+        img_array = np.expand_dims(img_array, axis=0)
 
         # Memory-efficient prediction
         with tf.device('/cpu:0'):  # Force CPU prediction if memory issues
