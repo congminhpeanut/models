@@ -38,7 +38,7 @@ def predict_image(image_file):
                 pad = (h - w) // 2
                 img = img[pad:pad+w, :] if h > w else img
             return cv2.resize(img, (target_size, target_size), 
-                            interpolation=cv2.INTER_AREA)
+                            interpolation=cv2.INTER_LANCZOS4)
 
         # Two-stage cropping with optimized sizes
         img_cropped = center_crop(img, 1500)
