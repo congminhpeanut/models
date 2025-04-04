@@ -150,9 +150,10 @@ def main():
         st.markdown("""
             <div style="padding: 10px; background: #f8f9fa; border-radius: 8px;">
                 <p style="font-size: 14px; color: #666;">
-                    <b>Phiên bản:</b> 2.1<br>
-                    <b>Cập nhật:</b> 15/07/2024<br>
-                    <b>Độ chính xác:</b> 92.4% (test set)<br>
+                    <b>Phiên bản:</b> 1.1<br>
+                    <b>Cập nhật:</b> 04/4/2025<br>
+                    <b>Tác giả:</b> Nguyễn Trương Công Minh<br>
+                    <b>Độ chính xác:</b> AUC-PR (avg) 87% (val + test set)<br>
                     <b>Thời gian xử lý:</b> ~3s/ảnh
                 </p>
             </div>
