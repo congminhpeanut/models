@@ -16,7 +16,7 @@ if gpus:
 # Cache model loading with resource management
 @st.cache_resource(show_spinner=False)
 def load_model():
-    model_path = 'best_model.h5'
+    model_path = 'final_model.h5'
     return tf.keras.models.load_model(model_path)
 
 model = load_model()
